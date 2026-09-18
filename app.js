@@ -14,8 +14,16 @@ dateInput.value = isoToday;
 dateInput.min = isoToday;
 document.querySelector('#today-label').textContent = today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
-let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let tasks = loadTasks();
 
+function loadTasks() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
 function formatDue(task) {
   const date = new Date(`${task.date}T${task.time}`);
@@ -27,26 +35,40 @@ function render() {
   tasks.forEach(task => {
     const item = document.createElement('article');
     item.className = 'task';
-    item.innerHTML = `<button class="check" aria-label="Mark assignment complete"> </button><div class="task-info"><p class="task-name"></p><p class="task-due">Due ${formatDue(task)}</p></div><button class="delete" aria-label="Delete assignment">×</button>`;
+    item.innerHTML = `<button class="check" aria-label="Mark assignment complete">✓</button><div class="task-info"><p class="task-name"></p><p class="task-due">Due ${formatDue(task)}</p></div><button class="delete" aria-label="Delete assignment">×</button>`;
     item.querySelector('.task-name').textContent = task.name;
-    item.querySelector('.check').addEventListener('click', () => complete(task.id));
+    item.querySelector('.check').addEventListener('click', () => complete(task.id, item));
     item.querySelector('.delete').addEventListener('click', () => remove(task.id));
     list.appendChild(item);
   });
-  empty.hidden = tasks.length > 0;
+  empty.hidden = tasks.length !== 0;
   count.textContent = `${tasks.length} ${tasks.length === 1 ? 'assignment' : 'assignments'} left`;
 }
-function complete(id) {
-  tasks = tasks.filter(task => task.id !== id); save(); render();
-  puffball.classList.remove('celebrate'); void puffball.offsetWidth; puffball.classList.add('celebrate');
-  companionMessage.textContent = 'Yay, you did it!'; companionDetail.textContent = 'Your progress is worth celebrating.';
+function complete(id, item) {
+  item.classList.add('completing');
+  setTimeout(() => {
+    tasks = tasks.filter(task => task.id !== id);
+    save();
+    render();
+  }, 280);
+  puffball.classList.remove('celebrate');
+  void puffball.offsetWidth;
+  puffball.classList.add('celebrate');
+  companionMessage.textContent = 'Yay, you did it!';
+  companionDetail.textContent = 'Your progress is worth celebrating.';
   setTimeout(() => { companionMessage.textContent = 'You’ve got this!'; companionDetail.textContent = 'Small steps still move you forward.'; }, 2600);
 }
 function remove(id) { tasks = tasks.filter(task => task.id !== id); save(); render(); }
 form.addEventListener('submit', event => {
   event.preventDefault();
   const data = new FormData(form);
-  tasks.push({ id: crypto.randomUUID(), name: data.get('name').trim(), date: data.get('date'), time: data.get('time') });
-  save(); render(); form.reset(); dateInput.value = isoToday; form.elements.name.focus();
+  const name = data.get('name').trim();
+  if (!name) return;
+  tasks.push({ id: crypto.randomUUID(), name, date: data.get('date'), time: data.get('time') });
+  save();
+  render();
+  form.reset();
+  dateInput.value = isoToday;
+  form.elements.name.focus();
 });
 render();
