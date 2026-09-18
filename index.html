@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5efe7" />
+  <title>Cloudy Day Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="planner-card" aria-labelledby="page-title">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">A gentle place to plan</p>
+          <h1 id="page-title">Good morning, <span>Caroline</span></h1>
+          <p class="date" id="today-label"></p>
+        </div>
+        <div class="weather" aria-label="Calm day"><span>☁️</span><small>Take it<br />one thing at a time</small></div>
+      </header>
+
+      <div class="content-grid">
+        <section class="tasks-panel" aria-labelledby="tasks-heading">
+          <div class="section-heading">
+            <div><p class="eyebrow">Today’s rhythm</p><h2 id="tasks-heading">Your assignments</h2></div>
+            <span class="task-count" id="task-count">0 left</span>
+          </div>
+
+          <form class="add-task" id="task-form">
+            <label class="sr-only" for="task-name">Assignment name</label>
+            <input id="task-name" name="name" type="text" placeholder="What would you like to accomplish?" required maxlength="100" />
+            <div class="form-row">
+              <label><span>Due date</span><input name="date" type="date" required /></label>
+              <label><span>Time</span><input name="time" type="time" required /></label>
+              <button type="submit" class="add-button">Add assignment <span>＋</span></button>
+            </div>
+          </form>
+
+          <div class="task-list" id="task-list" aria-live="polite"></div>
+          <div class="empty-state" id="empty-state"><div class="empty-icon">🌿</div><h3>Your list is clear</h3><p>Add something small to get started.</p></div>
+        </section>
+
+        <aside class="companion-card" aria-live="polite">
+          <div class="sparkles">✦　˚　✧</div>
+          <div class="puffball" id="puffball" role="img" aria-label="A cheerful puffball companion">☁️<span class="face">•ᴗ•</span></div>
+          <p class="companion-kicker">Your little companion</p>
+          <h2 id="companion-message">You’ve got this!</h2>
+          <p id="companion-detail">Small steps still move you forward.</p>
+        </aside>
+      </div>
+    </section>
+    <footer>Made for peaceful progress <span>♥</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
