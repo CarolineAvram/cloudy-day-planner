@@ -25,12 +25,15 @@ function loadTasks() {
   }
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+function createId() {
+  return window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 function formatDue(task) {
   const date = new Date(`${task.date}T${task.time}`);
   return `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
 }
 function render() {
-  list.innerHTML = '';
+  list.replaceChildren();
   tasks.sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
   tasks.forEach(task => {
     const item = document.createElement('article');
@@ -46,25 +49,18 @@ function render() {
 }
 function complete(id, item) {
   item.classList.add('completing');
-  setTimeout(() => {
-    tasks = tasks.filter(task => task.id !== id);
-    save();
-    render();
-  }, 280);
-  puffball.classList.remove('celebrate');
-  void puffball.offsetWidth;
-  puffball.classList.add('celebrate');
-  companionMessage.textContent = 'Yay, you did it!';
-  companionDetail.textContent = 'Your progress is worth celebrating.';
+  setTimeout(() => { tasks = tasks.filter(task => task.id !== id); save(); render(); }, 280);
+  puffball.classList.remove('celebrate'); void puffball.offsetWidth; puffball.classList.add('celebrate');
+  companionMessage.textContent = 'Yay, you did it!'; companionDetail.textContent = 'Your progress is worth celebrating.';
   setTimeout(() => { companionMessage.textContent = 'You’ve got this!'; companionDetail.textContent = 'Small steps still move you forward.'; }, 2600);
 }
 function remove(id) { tasks = tasks.filter(task => task.id !== id); save(); render(); }
 form.addEventListener('submit', event => {
   event.preventDefault();
   const data = new FormData(form);
-  const name = data.get('name').trim();
-  if (!name) return;
-  tasks.push({ id: crypto.randomUUID(), name, date: data.get('date'), time: data.get('time') });
+  const name = String(data.get('name') || '').trim();
+  if (!name || !data.get('date') || !data.get('time')) return;
+  tasks.push({ id: createId(), name, date: data.get('date'), time: data.get('time') });
   save();
   render();
   form.reset();
